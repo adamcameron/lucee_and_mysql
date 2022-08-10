@@ -1,0 +1,51 @@
+version: '2'
+
+services:
+    lucee:
+        build:
+            context: ./lucee
+            args:
+                - LUCEE_PASSWORD=${LUCEE_PASSWORD}
+        environment:
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        volumes:
+            - ../:/var/www
+            - ../var/log/tomcat:/usr/local/tomcat/logs
+            - ../var/log/lucee:/opt/lucee/web/logs
+            - ./lucee/root_home/.bash_history:/root/.bash_history
+            - ../../../cfml/:/var/www/cfml
+        ports:
+            - "8890:8888"
+        stdin_open: true
+        tty: true
+        networks:
+            - backend
+
+    mysql:
+        build:
+            context: ./mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        ports:
+            - "3310:3306"
+        volumes:
+            - mysqlData:/var/lib/mysql
+            - ./mysql/root_home:/root
+            - ../var/log:/var/log
+        stdin_open: true
+        tty: true
+        networks:
+            backend:
+                aliases:
+                    - database.backend
+
+volumes:
+    mysqlData:
+    ftpDirectory:
+
+networks:
+    backend:
+        driver: "bridge"
